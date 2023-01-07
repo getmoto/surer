@@ -12,14 +12,15 @@ jobs:
           - 3.7.3
           - 3.8.6
           - 3.9.0
+          - "3.10.0"
+          - "3.11.0"
 
     steps:
     - uses: actions/checkout@v2
-    - name: Install python version
-      uses: gabrielfalcao/pyenv-action@v7
+    - name: Install python version ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
       with:
-        default: "${{ matrix.python }}"
-        command: pip install -U pip setuptools
+        python-version: ${{ matrix.python-version }}
 
     - name: Install dependencies
       run: pip install -r development.txt
@@ -27,8 +28,5 @@ jobs:
     - name: Install sure
       run: pip install -e .
 
-    - name: Run tests with nose
-      run: nosetests --verbosity 2
-
-    - name: Test with pytest
-      run: pytest -vv
+    - name: Run tests
+      run: pytest tests
