@@ -82,20 +82,16 @@ def read_readme():
 
 
 install_requires = ["mock", "six"]
-tests_require = ["nose"]
+tests_require = ["pytest"]
 version = read_version()
 
 if __name__ == "__main__":
     setup(
-        name="sure",
+        name="surer",
         version=version,
         description=__doc__,
         long_description=read_readme(),
-        url="http://github.com/gabrielfalcao/sure",
-        author="Gabriel Falcao",
-        author_email="gabriel@nacaolivre.org",
-        maintainer="Timo Furrer",
-        maintainer_email="tuxtimo@gmail.com",
+        url="http://github.com/getmoto/surer",
         include_package_data=True,
         packages=find_packages(exclude=["*tests*"]),
         install_requires=install_requires,
