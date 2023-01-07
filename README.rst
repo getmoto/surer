@@ -39,9 +39,7 @@ Sure's developer experience is inspired and modeled after `RSpec Expectations
 <http://rspec.info/documentation/3.5/rspec-expectations/>`_ and
 `should.js <https://github.com/shouldjs/should.js>`_.
 
-.. note::
-
-    This is a fork of Gabriel's library, maintained at `http://github.com/getmoto/surer`. It provides support for more recent Python-versions, but does not differ in functionality.
+.. note:: This is a fork of Gabriel's library, maintained at `http://github.com/getmoto/surer`. It provides support for more recent Python-versions, but does not differ in functionality.
 
 Installing
 ----------
