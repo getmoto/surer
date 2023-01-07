@@ -1,48 +1,47 @@
-sure
-====
+surer
+=====
 
 
 
-.. image:: https://img.shields.io/pypi/dm/sure
-   :target: https://pypi.org/project/sure
+.. image:: https://img.shields.io/pypi/dm/surer
+   :target: https://pypi.org/project/surer
 
-.. image:: https://github.com/gabrielfalcao/sure/workflows/Sure%20Tests/badge.svg
-   :target: https://github.com/gabrielfalcao/sure/actions?query=workflow%3A%22Sure+Tests%22
+.. image:: https://github.com/getmoto/surer/workflows/Sure%20Tests/badge.svg
+   :target: https://github.com/getmoto/surer/actions?query=workflow%3A%22Sure+Tests%22
 
 .. image:: https://img.shields.io/readthedocs/sure
-   :target: https://sure.readthedocs.io/
+   :target: https://surer.readthedocs.io/
 
-.. image:: https://img.shields.io/github/license/gabrielfalcao/sure?label=Github%20License
-   :target: https://github.com/gabrielfalcao/sure/blob/master/LICENSE
+.. image:: https://img.shields.io/github/license/getmoto/surer?label=Github%20License
+   :target: https://github.com/getmoto/surer/blob/master/LICENSE
 
-.. image:: https://img.shields.io/pypi/v/sure
-   :target: https://pypi.org/project/sure
+.. image:: https://img.shields.io/pypi/v/surer
+   :target: https://pypi.org/project/surer
 
-.. image:: https://img.shields.io/pypi/l/sure?label=PyPi%20License
-   :target: https://pypi.org/project/sure
+.. image:: https://img.shields.io/pypi/l/surer?label=PyPi%20License
+   :target: https://pypi.org/project/surer
 
-.. image:: https://img.shields.io/pypi/format/sure
-   :target: https://pypi.org/project/sure
+.. image:: https://img.shields.io/pypi/format/surer
+   :target: https://pypi.org/project/surer
 
-.. image:: https://img.shields.io/pypi/status/sure
-   :target: https://pypi.org/project/sure
+.. image:: https://img.shields.io/pypi/status/surer
+   :target: https://pypi.org/project/surer
 
-.. image:: https://img.shields.io/pypi/pyversions/sure
-   :target: https://pypi.org/project/sure
+.. image:: https://img.shields.io/pypi/pyversions/surer
+   :target: https://pypi.org/project/surer
 
-.. image:: https://img.shields.io/pypi/implementation/sure
-   :target: https://pypi.org/project/sure
+.. image:: https://img.shields.io/pypi/implementation/surer
+   :target: https://pypi.org/project/surer
 
-.. image:: https://img.shields.io/github/v/tag/gabrielfalcao/sure
-   :target: https://github.com/gabrielfalcao/sure/releases
-
-.. image:: https://img.shields.io/badge/pydoc-web-ff69b4.svg
-   :target: http://pydoc.net/sure
 
 An idiomatic testing library for python with powerful and flexible assertions, created by `Gabriel Falcão <https://github.com/gabrielfalcao>`_.
 Sure's developer experience is inspired and modeled after `RSpec Expectations
 <http://rspec.info/documentation/3.5/rspec-expectations/>`_ and
 `should.js <https://github.com/shouldjs/should.js>`_.
+
+.. note::
+
+    This is a fork of Gabriel's library, maintained at `http://github.com/getmoto/surer`. It provides support for more recent Python-versions, but does not differ in functionality.
 
 Installing
 ----------
@@ -54,7 +53,7 @@ Installing
 Documentation
 -------------
 
-Available in the `website <https://sure.readthedocs.io/en/latest/>`__ or under the
+Available in the `website <https://surer.readthedocs.io/en/latest/>`__ or under the
 ``docs`` directory.
 
 You can also build the documentation locally using sphinx:
