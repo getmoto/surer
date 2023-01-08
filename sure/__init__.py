@@ -27,8 +27,7 @@ import traceback
 from functools import wraps, partial
 from datetime import datetime
 
-from six import string_types, text_type, PY2, get_function_code
-from six.moves import reduce
+from functools import reduce
 
 from sure.old import AssertionHelper
 from sure.old import Iterable
@@ -43,10 +42,6 @@ from sure.core import anything  # noqa
 
 from sure.magic import is_cpython, patchable_builtin
 from sure.registry import context as _registry
-
-
-if not PY2:
-    basestring = str
 
 
 not_here_error = (
@@ -111,8 +106,8 @@ class CallBack(object):
         self.args = args or []
         self.kwargs = kwargs or {}
         self.callback_name = cb.__name__
-        self.callback_filename = os.path.split(get_function_code(cb).co_filename)[-1]
-        self.callback_lineno = get_function_code(cb).co_firstlineno + 1
+        self.callback_filename = os.path.split(cb.__code__.co_filename)[-1]
+        self.callback_lineno = cb.__code__.co_firstlineno + 1
 
     def apply(self, *optional_args):
         args = list(optional_args)
@@ -194,12 +189,8 @@ def within(**units):
             try:
                 func(start, *args, **kw)
             except TypeError as e:
-                if PY2:
-                    # PY2 has different error message
-                    fmt = "{0}() takes no arguments"
-                else:
-                    fmt = "{0}() takes 0 positional arguments but 1 was given"
-                err = text_type(e)
+                fmt = "{0}() takes 0 positional arguments but 1 was given"
+                err = str(e)
                 if fmt.format(func.__name__) in err:
                     func(*args, **kw)
                 else:
@@ -412,8 +403,6 @@ def assertionmethod(func):
             ", ".join(map(safe_repr, args)),
             ", ".join(["{0}={1}".format(k, safe_repr(kw[k])) for k in kw]),
         )
-        if PY2:
-            msg = text_type(msg)
 
         assert value, msg
         return value
@@ -753,14 +742,14 @@ class AssertionBuilder(object):
     def an(self, klass):
         if isinstance(klass, type):
             class_name = klass.__name__
-        elif isinstance(klass, string_types):
+        elif isinstance(klass, str):
             class_name = klass.strip()
         else:
-            class_name = text_type(klass)
+            class_name = str(klass)
 
         is_vowel = class_name[0] in "aeiou"
 
-        if isinstance(klass, string_types):
+        if isinstance(klass, str):
             if "." in klass:
                 items = klass.split(".")
                 first = items.pop(0)
@@ -949,7 +938,7 @@ class AssertionBuilder(object):
     def match(self, regex, *args):
         obj_repr = repr(self.obj)
         assert isinstance(
-            self.obj, basestring
+            self.obj, str
         ), "{0} should be a string in order to compare using .match()".format(obj_repr)
         matched = re.search(regex, self.obj, *args)
 
