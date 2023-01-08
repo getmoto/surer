@@ -39,15 +39,14 @@ Sure's developer experience is inspired and modeled after `RSpec Expectations
 <http://rspec.info/documentation/3.5/rspec-expectations/>`_ and
 `should.js <https://github.com/shouldjs/should.js>`_.
 
-.. Note::
-    This is a fork of Gabriel's library, maintained at `http://github.com/getmoto/surer`. It provides support for more recent Python-versions, but does not differ in functionality.
+This is a fork of Gabriel's `sure` library, maintained at `http://github.com/getmoto/surer`. It provides support for more recent Python-versions, but does not differ in functionality.
 
 Installing
 ----------
 
 .. code:: bash
 
-    $ pip install sure
+    $ pip install surer
 
 Documentation
 -------------
@@ -72,7 +71,7 @@ Equality
 
 .. code:: python
 
-    import sure
+    import surer
 
     (4).should.be.equal(2 + 2)
     (7.5).should.eql(3.5 + 4)
