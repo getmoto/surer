@@ -18,14 +18,12 @@
 from __future__ import unicode_literals
 
 import pytest
-from six import text_type, PY2
-from six.moves import xrange
 
 import sure
 from sure.deprecated import that
 from sure.magic import is_cpython
 from sure import VariablesBag, expect
-from sure.compat import compat_repr, safe_repr, text_type_name
+from sure.compat import safe_repr
 
 
 def test_setup_with_context():
@@ -95,8 +93,8 @@ def test_that_is_a():
 
     something = "something"
 
-    assert that(something).is_a(text_type)
-    assert isinstance(something, text_type)
+    assert that(something).is_a(str)
+    assert isinstance(something, str)
 
 
 def test_that_equals():
@@ -370,7 +368,7 @@ def test_that_checking_each_matches():
         assert that(animals).in_each("attributes['kind']").matches(['dog'])
         assert False, 'should not reach here'
     except AssertionError as e:
-        assert that(text_type(e)).equals(
+        assert that(str(e)).equals(
             '%r has 5 items, but the matching list has 1: %r' % (
                 ['dog','cat','cow','cow','cow'], ['dog'],
             )
@@ -396,7 +394,7 @@ def test_that_raises():
         assert False, 'should not reach here'
 
     except RuntimeError as e:
-        assert text_type(e) == 'yeah, it failed'
+        assert str(e) == 'yeah, it failed'
 
     except Exception:
         assert False, 'should not reach here'
@@ -477,7 +475,7 @@ def test_that_raises_does_raise_for_exception_type_mismatch():
         assert False, 'should never reach here'
     except AssertionError as e:
         import re
-        assert re.match(error, text_type(e))
+        assert re.match(error, str(e))
 
 
 def test_that_raises_with_args():
@@ -525,8 +523,7 @@ def test_that_contains_none():
     "that('foobar').contains(None)"
 
     def assertions():
-        # We can't use unicode in Py2, otherwise it will try to coerce
-        assert that(b'foobar' if PY2 else 'foobar').contains(None)
+        assert that('foobar').contains(None)
 
     error_msg = "'in <string>' requires string as left operand, not NoneType" if is_cpython else "'NoneType' does not have the buffer interface"
 
@@ -544,7 +541,7 @@ def test_that_none_contains_string():
         assert False, 'should not reach here'
     except Exception as e:
         error_msg = "argument of type 'NoneType' is not iterable" if is_cpython else "'NoneType' object is not iterable"
-        assert text_type(e) == error_msg
+        assert str(e) == error_msg
 
 
 def test_that_some_iterable_is_empty():
@@ -582,9 +579,8 @@ def test_that_something_is_empty_raises():
 def test_that_something_iterable_matches_another():
     "that(something_iterable).matches(another_iterable)"
 
-    # types must be unicode in py3, bute bytestrings in py2
-    KlassOne = type(b'KlassOne' if PY2 else 'KlassOne', (object,), {})
-    KlassTwo = type(b'KlassTwo' if PY2 else 'KlassTwo', (object,), {})
+    KlassOne = type('KlassOne', (object,), {})
+    KlassTwo = type('KlassTwo', (object,), {})
     one = [
         ("/1", KlassOne),
         ("/2", KlassTwo),
@@ -599,20 +595,20 @@ def test_that_something_iterable_matches_another():
     assert that(one).equals(two)
 
     def fail_1():
-        assert that([1]).matches(xrange(2))
+        assert that([1]).matches(range(2))
 
     class Fail2(object):
         def __init__(self):
-            assert that(xrange(1)).matches([2])
+            assert that(range(1)).matches([2])
 
     class Fail3(object):
         def __call__(self):
-            assert that(xrange(1)).matches([2])
+            assert that(range(1)).matches([2])
 
-    xrange_name = xrange.__name__
-    assert that(fail_1).raises('X is a list and Y is a {0} instead'.format(xrange_name))
-    assert that(Fail2).raises('X is a {0} and Y is a list instead'.format(xrange_name))
-    assert that(Fail3()).raises('X is a {0} and Y is a list instead'.format(xrange_name))
+    range_name = range.__name__
+    assert that(fail_1).raises('X is a list and Y is a {0} instead'.format(range_name))
+    assert that(Fail2).raises('X is a {0} and Y is a list instead'.format(range_name))
+    assert that(Fail3()).raises('X is a {0} and Y is a list instead'.format(range_name))
 
 
 def test_within_pass():
@@ -661,7 +657,7 @@ def test_word_to_number_fail():
         sure.word_to_number('twenty')
     except AssertionError as e:
         failed = True
-        assert text_type(e) == 'sure supports only literal numbers from one to twelve, you tried the word "twenty"'
+        assert str(e) == 'sure supports only literal numbers from one to twelve, you tried the word "twenty"'
 
     assert failed, 'should raise assertion error'
 
@@ -886,7 +882,7 @@ def test_depends_on_failing_due_nothing_found():
     from sure import action_for, scenario
 
     fullpath = os.path.abspath(__file__).replace('.pyc', '.py')
-    error = 'the action "lonely_action" defined at %s:895 ' \
+    error = 'the action "lonely_action" defined at %s:891 ' \
         'depends on the attribute "something" to be available in the' \
         ' context. It turns out that there are no actions providing ' \
         'that. Please double-check the implementation' % fullpath
@@ -912,10 +908,10 @@ def test_depends_on_failing_due_not_calling_a_previous_action():
     from sure import action_for, scenario
 
     fullpath = os.path.abspath(__file__).replace('.pyc', '.py')
-    error = 'the action "my_action" defined at {0}:925 ' \
+    error = 'the action "my_action" defined at {0}:921 ' \
         'depends on the attribute "some_attr" to be available in the context.'\
         ' You need to call one of the following actions beforehand:\n' \
-        ' -> dependency_action at {0}:921'.replace('{0}', fullpath)
+        ' -> dependency_action at {0}:917'.replace('{0}', fullpath)
 
     def with_setup(context):
         @action_for(context, provides=['some_attr'])
@@ -1046,13 +1042,11 @@ def test_deep_equals_dict_level1_fail():
         })
 
     assert that(assertions).raises(
-        AssertionError, compat_repr(
-        "given\n" \
+        AssertionError, "given\n" \
         "X = {'one': 'yeah'}\n" \
         "    and\n" \
         "Y = {'one': 'oops'}\n" \
-        "X['one'] is 'yeah' whereas Y['one'] is 'oops'",
-    ))
+        "X['one'] is 'yeah' whereas Y['one'] is 'oops'")
 
 
 def test_deep_equals_list_level1_success():
@@ -1071,13 +1065,11 @@ def test_deep_equals_list_level1_fail_by_value():
         assert that(something).deep_equals(['one', 'yeah'])
 
     assert that(assertions).raises(
-        AssertionError, compat_repr(
-        "given\n" \
+        AssertionError, "given\n" \
         "X = ['one', 'yeahs']\n" \
         "    and\n" \
         "Y = ['one', 'yeah']\n" \
-        "X[1] is 'yeahs' whereas Y[1] is 'yeah'",
-    ))
+        "X[1] is 'yeahs' whereas Y[1] is 'yeah'")
 
 
 def test_deep_equals_list_level1_fail_by_length_x_gt_y():
@@ -1089,13 +1081,11 @@ def test_deep_equals_list_level1_fail_by_length_x_gt_y():
         assert that(something).deep_equals(['one', 'yeah'])
 
     assert that(assertions).raises(
-        AssertionError, compat_repr(
-        "given\n" \
+        AssertionError, "given\n" \
         "X = ['one', 'yeah', 'awesome!']\n" \
         "    and\n" \
         "Y = ['one', 'yeah']\n" \
-        "X has 3 items whereas Y has only 2",
-    ))
+        "X has 3 items whereas Y has only 2")
 
 
 def test_deep_equals_list_level1_fail_by_length_y_gt_x():
@@ -1107,14 +1097,11 @@ def test_deep_equals_list_level1_fail_by_length_y_gt_x():
         assert that(something).deep_equals(['one', 'yeah', 'damn'])
 
     assert that(assertions).raises(
-        AssertionError, compat_repr(
-            "given\n"
+        AssertionError, "given\n"
             "X = ['one', 'yeah']\n"
             "    and\n"
             "Y = ['one', 'yeah', 'damn']\n"
-            "Y has 3 items whereas X has only 2"
-        )
-    )
+            "Y has 3 items whereas X has only 2")
 
 
 def test_deep_equals_dict_level1_fails_missing_key_on_y():
@@ -1130,13 +1117,11 @@ def test_deep_equals_dict_level1_fails_missing_key_on_y():
         })
 
     assert that(assertions).raises(
-        AssertionError, compat_repr(
-            "given\n"
+        AssertionError, "given\n"
             "X = {{'one': 'yeah'}}\n"
             "    and\n"
             "Y = {{'two': 'yeah'}}\n"
-            "X has the key \"{0}\" whereas Y does not"
-        ).format(safe_repr('one'))
+            "X has the key \"{0}\" whereas Y does not".format(safe_repr('one'))
     )
 
 
@@ -1149,13 +1134,11 @@ def test_deep_equals_failing_basic_vs_complex():
         })
 
     assert that(assertions).raises(
-        AssertionError, compat_repr(
-        "given\n" \
+        AssertionError, "given\n" \
         "X = 'two yeah'\n"
         "    and\n" \
         "Y = {'two': 'yeah'}\n" \
-        "X is a %s and Y is a dict instead" % text_type_name,
-    ))
+        "X is a str and Y is a dict instead")
 
 
 def test_deep_equals_failing_complex_vs_basic():
@@ -1165,13 +1148,11 @@ def test_deep_equals_failing_complex_vs_basic():
         assert that({'two': 'yeah'}).deep_equals('two yeah')
 
     assert that(assertions).raises(
-        AssertionError, compat_repr(
-        "given\n" \
+        AssertionError, "given\n" \
         "X = {'two': 'yeah'}\n" \
         "    and\n" \
         "Y = 'two yeah'\n"
-        "X is a dict and Y is a %s instead" % text_type_name,
-    ))
+        "X is a dict and Y is a str instead")
 
 
 def test_deep_equals_tuple_level1_success():
@@ -1190,13 +1171,11 @@ def test_deep_equals_tuple_level1_fail_by_value():
         assert that(something).deep_equals(('one', 'yeah'))
 
     assert that(assertions).raises(
-        AssertionError, compat_repr(
-        "given\n" \
+        AssertionError, "given\n" \
         "X = ('one', 'yeahs')\n" \
         "    and\n" \
         "Y = ('one', 'yeah')\n" \
-        "X[1] is 'yeahs' whereas Y[1] is 'yeah'",
-    ))
+        "X[1] is 'yeahs' whereas Y[1] is 'yeah'")
 
 
 def test_deep_equals_tuple_level1_fail_by_length_x_gt_y():
@@ -1208,13 +1187,11 @@ def test_deep_equals_tuple_level1_fail_by_length_x_gt_y():
         assert that(something).deep_equals(('one', 'yeah'))
 
     assert that(assertions).raises(
-        AssertionError, compat_repr(
-        "given\n" \
+        AssertionError, "given\n" \
         "X = ('one', 'yeah', 'awesome!')\n" \
         "    and\n" \
         "Y = ('one', 'yeah')\n" \
-        "X has 3 items whereas Y has only 2",
-    ))
+        "X has 3 items whereas Y has only 2")
 
 
 def test_deep_equals_tuple_level1_fail_by_length_y_gt_x():
@@ -1226,13 +1203,11 @@ def test_deep_equals_tuple_level1_fail_by_length_y_gt_x():
         assert that(something).deep_equals(('one', 'yeah', 'damn'))
 
     assert that(assertions).raises(
-        AssertionError, compat_repr(
-        "given\n" \
+        AssertionError, "given\n" \
         "X = ('one', 'yeah')\n" \
         "    and\n" \
         "Y = ('one', 'yeah', 'damn')\n" \
-        "Y has 3 items whereas X has only 2",
-    ))
+        "Y has 3 items whereas X has only 2")
 
 
 def test_deep_equals_fallsback_to_generic_comparator():
@@ -1265,13 +1240,11 @@ def test_deep_equals_fallsback_to_generic_comparator_failing():
         })
 
     assert that(assertions).raises(
-        AssertionError, compat_repr(
-        "given\n" \
+        AssertionError, "given\n" \
         "X = {'date': datetime.datetime(2012, 3, 5, 0, 0)}\n" \
         "    and\n" \
         "Y = {'date': datetime.datetime(2012, 3, 6, 0, 0)}\n" \
-        "X['date'] != Y['date']",
-    ))
+        "X['date'] != Y['date']")
 
 
 def test_deep_equals_fallsback_to_generic_comparator_failing_type():
@@ -1288,13 +1261,11 @@ def test_deep_equals_fallsback_to_generic_comparator_failing_type():
         })
 
     assert that(assertions).raises(
-        AssertionError, compat_repr(
-        "given\n" \
+        AssertionError, "given\n" \
         "X = {'date': datetime.datetime(2012, 3, 5, 0, 0)}\n" \
         "    and\n" \
         "Y = {'date': None}\n" \
-        "X['date'] is a datetime and Y['date'] is a NoneType instead",
-    ))
+        "X['date'] is a datetime and Y['date'] is a NoneType instead")
 
 
 def test_deep_equals_dict_level2_success():
@@ -1347,13 +1318,11 @@ def test_deep_equals_dict_level2_fail():
             },
         })
     assert that(assertions).raises(
-        AssertionError, compat_repr(
-        "given\n" \
+        AssertionError, "given\n" \
         "X = {'another': {'two': '##'}, 'one': 'yeah'}\n" \
         "    and\n" \
         "Y = {'another': {'two': '$$'}, 'one': 'yeah'}\n" \
-        "X['another']['two'] is '##' whereas Y['another']['two'] is '$$'",
-    ))
+        "X['another']['two'] is '##' whereas Y['another']['two'] is '$$'")
 
 
 def test_deep_equals_dict_level3_fail_values():
@@ -1373,13 +1342,11 @@ def test_deep_equals_dict_level3_fail_values():
         })
 
     assert that(assertions).raises(
-        AssertionError, compat_repr(
-        "given\n" \
+        AssertionError, "given\n" \
         "X = {'my::all_users': [{'age': 33, 'name': 'John'}]}\n" \
         "    and\n" \
         "Y = {'my::all_users': [{'age': 30, 'name': 'John'}]}\n" \
-        "X['my::all_users'][0]['age'] is 33 whereas Y['my::all_users'][0]['age'] is 30",
-    ))
+        "X['my::all_users'][0]['age'] is 33 whereas Y['my::all_users'][0]['age'] is 30")
 
 
 def test_deep_equals_dict_level3_fails_missing_key():
@@ -1399,13 +1366,11 @@ def test_deep_equals_dict_level3_fails_missing_key():
         })
 
     assert that(assertions).raises(
-        AssertionError, compat_repr(
-            "given\n"
+        AssertionError, "given\n"
             "X = {{'my::all_users': [{{'age': 33, 'name': 'John'}}]}}\n"
             "    and\n"
             "Y = {{'my::all_users': [{{'age': 30, 'foo': 'bar', 'name': 'John'}}]}}\n"
-            "X['my::all_users'][0] does not have the key \"{0}\" whereas Y['my::all_users'][0] has it"
-        ).format(safe_repr('foo'))
+            "X['my::all_users'][0] does not have the key \"{0}\" whereas Y['my::all_users'][0] has it".format(safe_repr('foo'))
     )
 
 
@@ -1426,13 +1391,11 @@ def test_deep_equals_dict_level3_fails_extra_key():
         })
 
     assert that(assertions).raises(
-        AssertionError, compat_repr(
-        "given\n"
+        AssertionError, "given\n"
         "X = {{'my::all_users': [{{'age': 33, 'foo': 'bar', 'name': 'John'}}]}}\n"
         "    and\n"
         "Y = {{'my::all_users': [{{'age': 30, 'name': 'John'}}]}}\n"
-        "X['my::all_users'][0] has the key \"{0}\" whereas Y['my::all_users'][0] does not"
-    ).format(safe_repr('foo')))
+        "X['my::all_users'][0] has the key \"{0}\" whereas Y['my::all_users'][0] does not".format(safe_repr('foo')))
 
 
 def test_deep_equals_dict_level3_fails_different_key():
@@ -1452,13 +1415,11 @@ def test_deep_equals_dict_level3_fails_different_key():
         })
 
     assert that(assertions).raises(
-        AssertionError, compat_repr(
-        "given\n"
+        AssertionError, "given\n"
         "X = {{'my::all_users': [{{'age': 33, 'foo': 'bar', 'name': 'John'}}]}}\n"
         "    and\n"
         "Y = {{'my::all_users': [{{'age': 33, 'bar': 'foo', 'name': 'John'}}]}}\n"
-        "X['my::all_users'][0] has the key \"{0}\" whereas Y['my::all_users'][0] does not"
-    ).format(safe_repr('foo')))
+        "X['my::all_users'][0] has the key \"{0}\" whereas Y['my::all_users'][0] does not".format(safe_repr('foo')))
 
 
 def test_deep_equals_list_level2_fail_by_length_x_gt_y():
@@ -1470,13 +1431,11 @@ def test_deep_equals_list_level2_fail_by_length_x_gt_y():
         assert that(something).deep_equals({'iterable': ['one', 'yeah']})
 
     assert that(assertions).raises(
-        AssertionError, compat_repr(
-        "given\n" \
+        AssertionError, "given\n" \
         "X = {'iterable': ['one', 'yeah', 'awesome!']}\n" \
         "    and\n" \
         "Y = {'iterable': ['one', 'yeah']}\n" \
-        "X has 3 items whereas Y has only 2",
-    ))
+        "X has 3 items whereas Y has only 2")
 
 
 def test_deep_equals_list_level2_fail_by_length_y_gt_x():
@@ -1488,13 +1447,11 @@ def test_deep_equals_list_level2_fail_by_length_y_gt_x():
         assert that(something).deep_equals(['one', 'yeah', 'damn'])
 
     assert that(assertions).raises(
-        AssertionError, compat_repr(
-        "given\n" \
+        AssertionError, "given\n" \
         "X = ['one', 'yeah']\n" \
         "    and\n" \
         "Y = ['one', 'yeah', 'damn']\n" \
-        "Y has 3 items whereas X has only 2",
-    ))
+        "Y has 3 items whereas X has only 2")
 
 
 def test_function_decorated_with_wip_should_set_a_flag():
@@ -1519,13 +1476,11 @@ def test_that_equals_fails():
         assert that('something').equals(something)
 
     assert that(fail).raises(
-        AssertionError, compat_repr(
-        "given\n" \
+        AssertionError, "given\n" \
         "X = 'something'\n" \
         "    and\n" \
         "Y = 'else'\n" \
-        "X is 'something' whereas Y is 'else'",
-    ))
+        "X is 'something' whereas Y is 'else'")
 
 
 def test_raises_with_string():
@@ -1538,7 +1493,7 @@ def test_raises_with_string():
         that(it_fails).raises('wrong msg')
         raise RuntimeError('should not reach here')
     except AssertionError as e:
-        assert that(text_type(e)).contains('''EXPECTED:
+        assert that(str(e)).contains('''EXPECTED:
 wrong msg
 
 GOT:

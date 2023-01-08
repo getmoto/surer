@@ -33,8 +33,6 @@ try:
 except ImportError:
     Pattern = re._pattern_type
 
-from six import string_types, text_type
-
 from sure.core import DeepComparison
 from sure.core import _get_file_name
 from sure.core import _get_line_number
@@ -50,7 +48,7 @@ def identify_callable_location(callable_object):
 
 
 def is_iterable(obj):
-    return hasattr(obj, '__iter__') and not isinstance(obj, string_types)
+    return hasattr(obj, '__iter__') and not isinstance(obj, str)
 
 
 def all_integers(obj):
@@ -125,7 +123,7 @@ class AssertionHelper(object):
         try:
             self._src(*self._callable_args, **self._callable_kw)
         except BaseException as e:
-            if isinstance(exc, string_types):
+            if isinstance(exc, str):
                 msg = exc
                 exc = type(e)
 
@@ -133,7 +131,7 @@ class AssertionHelper(object):
                 msg = exc
                 exc = type(e)
 
-            err = text_type(e)
+            err = str(e)
 
             if isinstance(exc, type) and issubclass(exc, BaseException):
                 if not isinstance(e, exc):
@@ -141,7 +139,7 @@ class AssertionHelper(object):
                         '%r should raise %r, but raised %r:\nORIGINAL EXCEPTION:\n\n%s' % (
                             self._src, exc, e.__class__, traceback.format_exc()))
 
-                if isinstance(msg, string_types) and msg not in err:
+                if isinstance(msg, str) and msg not in err:
                     raise AssertionError('''
                     %r raised %s, but the exception message does not
                     match.\n\nEXPECTED:\n%s\n\nGOT:\n%s'''.strip() % (
@@ -154,7 +152,7 @@ class AssertionHelper(object):
                         'When calling %r the exception message does not match. ' \
                         'Expected to match regex: %r\n against:\n %r' % (identify_callable_location(self._src), msg.pattern, err))
 
-            elif isinstance(msg, string_types) and msg not in err:
+            elif isinstance(msg, str) and msg not in err:
                 raise AssertionError(
                     'When calling %r the exception message does not match. ' \
                     'Expected: %r\n got:\n %r' % (self._src, msg, err))
@@ -374,7 +372,7 @@ class AssertionHelper(object):
         )
 
         if self._eval and is_iterable(self._src):
-            if isinstance(items, string_types):
+            if isinstance(items, str):
                 items = [items for x in range(len(items))]
             else:
                 if len(items) != len(self._src):

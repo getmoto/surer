@@ -19,10 +19,6 @@ from __future__ import unicode_literals
 import os
 
 import inspect
-from six import (
-    text_type, integer_types, string_types, binary_type,
-    get_function_code
-)
 
 from sure.terminal import red, green, yellow
 from sure.compat import safe_repr, OrderedDict
@@ -38,9 +34,9 @@ class Anything(object):
 anything = Anything()
 
 
-class DeepExplanation(text_type):
+class DeepExplanation(str):
     def get_header(self, X, Y, suffix):
-        params = (safe_repr(X), safe_repr(Y), text_type(suffix))
+        params = (safe_repr(X), safe_repr(Y), str(suffix))
         header = "given\nX = {0}\n    and\nY = {1}\n{2}".format(*params)
 
         return yellow(header).strip()
@@ -69,7 +65,7 @@ class DeepComparison(object):
 
     def is_simple(self, obj):
         return isinstance(obj, (
-            string_types, integer_types, binary_type, Anything
+            str, int, bytes, Anything
         ))
 
     def is_complex(self, obj):
@@ -214,11 +210,11 @@ class DeepComparison(object):
 
         def safe_format_repr(string):
             "Escape '{' and '}' in string for use with str.format()"
-            if not isinstance(string, (string_types, binary_type)):
+            if not isinstance(string, (str, bytes)):
                 return string
 
             orig_str_type = type(string)
-            if isinstance(string, binary_type):
+            if isinstance(string, bytes):
                 safe_repr = string.replace(b'{', b'{{').replace(b'}', b'}}')
             else:
                 safe_repr = string.replace('{', '{{').replace('}', '}}')
@@ -252,7 +248,7 @@ def _get_file_name(func):
     try:
         name = inspect.getfile(func)
     except AttributeError:
-        name = get_function_code(func).co_filename
+        name = func.__code__.co_filename
 
     return os.path.abspath(name)
 
@@ -261,7 +257,7 @@ def _get_line_number(func):
     try:
         return inspect.getlineno(func)
     except AttributeError:
-        return get_function_code(func).co_firstlineno
+        return func.__code__.co_firstlineno
 
 
 def itemize_length(items):
